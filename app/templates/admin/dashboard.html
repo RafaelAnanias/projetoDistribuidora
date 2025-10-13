@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Painel do Administrador</h1>
+    <p>Bem-vindo, {{ current_user.nome }}!</p>
+    <div class="list-group">
+        <a href="{{ url_for('routes.admin_adicionar_peca') }}" class="list-group-item list-group-item-action">Adicionar Nova Peça</a>
+        <a href="{{ url_for('routes.admin_pedidos') }}" class="list-group-item list-group-item-action">Visualizar e Gerenciar Pedidos</a>
+    </div>
+{% endblock %}

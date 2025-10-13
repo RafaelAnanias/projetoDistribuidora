@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Seu Carrinho de Compras</h1>
+    {% if itens_carrinho %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Peça</th>
+                    <th>Quantidade</th>
+                    <th>Preço Unitário</th>
+                    <th>Subtotal</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in itens_carrinho %}
+                    <tr>
+                        <td>{{ item.peca.nome }}</td>
+                        <td>{{ item.quantidade }}</td>
+                        <td>R$ {{ "%.2f"|format(item.peca.preco) }}</td>
+                        <td>R$ {{ "%.2f"|format(item.peca.preco * item.quantidade) }}</td>
+                        <td>
+                            <form action="{{ url_for('routes.remover_carrinho', item_id=item.id) }}" method="POST">
+                                <button type="submit" class="btn btn-danger btn-sm">Remover</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="text-end">
+            <h3>Total: R$ {{ "%.2f"|format(total) }}</h3>
+            <form action="{{ url_for('routes.finalizar_compra') }}" method="POST">
+                <button type="submit" class="btn btn-lg btn-success">Finalizar Compra</button>
+            </form>
+        </div>
+    {% else %}
+        <p>Seu carrinho está vazio.</p>
+    {% endif %}
+{% endblock %}

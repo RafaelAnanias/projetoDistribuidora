@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <img src="{{ peca.imagem_url }}" class="img-fluid rounded" alt="{{ peca.nome }}">
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title">{{ peca.nome }}</h1>
+                    <p class="card-text">{{ peca.descricao }}</p>
+                    <hr>
+                    <p class="fs-4"><strong>Preço:</strong> R$ {{ "%.2f"|format(peca.preco) }}</p>
+                    <p><strong>Em estoque:</strong> {{ peca.estoque }} unidades</p>
+                    <div class="d-flex gap-2 mt-4">
+                        <form action="{{ url_for('routes.adicionar_carrinho', peca_id=peca.id) }}" method="POST">
+                            <button type="submit" class="btn btn-success btn-lg">Adicionar ao Carrinho</button>
+                        </form>
+                        <form action="{{ url_for('routes.adicionar_desejo', peca_id=peca.id) }}" method="POST">
+                            <button type="submit" class="btn btn-outline-primary btn-lg">Adicionar à Lista de Desejos</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

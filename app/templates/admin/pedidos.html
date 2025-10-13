@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Todos os Pedidos</h1>
+    <div class="accordion" id="accordionPedidos">
+    {% for pedido in pedidos %}
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading{{ pedido.id }}">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ pedido.id }}">
+                    Pedido #{{ pedido.id }} - Cliente: {{ pedido.comprador.nome }} - Data: {{ pedido.data_pedido.strftime('%d/%m/%Y') }} - Status: <span class="badge bg-info ms-2">{{ pedido.status }}</span>
+                </button>
+            </h2>
+            <div id="collapse{{ pedido.id }}" class="accordion-collapse collapse" data-bs-parent="#accordionPedidos">
+                <div class="accordion-body">
+                    <h5>Itens do Pedido:</h5>
+                    <ul>
+                        {% for item in pedido.itens %}
+                            <li>{{ item.quantidade }}x {{ item.peca.nome }} (R$ {{ "%.2f"|format(item.preco_unitario) }} cada)</li>
+                        {% endfor %}
+                    </ul>
+                    <hr>
+                    <h5>Atualizar Status:</h5>
+                    <form action="{{ url_for('routes.atualizar_status_pedido', pedido_id=pedido.id) }}" method="POST" class="d-flex gap-2">
+                        <select name="status" class="form-select">
+                            <option value="Processando" {% if pedido.status == 'Processando' %}selected{% endif %}>Processando</option>
+                            <option value="Enviado" {% if pedido.status == 'Enviado' %}selected{% endif %}>Enviado</option>
+                            <option value="Entregue" {% if pedido.status == 'Entregue' %}selected{% endif %}>Entregue</option>
+                            <option value="Cancelado" {% if pedido.status == 'Cancelado' %}selected{% endif %}>Cancelado</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">Atualizar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <p>Nenhum pedido encontrado.</p>
+    {% endfor %}
+    </div>
+{% endblock %}

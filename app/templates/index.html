@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Catálogo de Peças</h1>
+    <div class="row">
+        {% for peca in pecas %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    
+                    <img src="{{ peca.imagem_url }}" class="card-img-top" alt="{{ peca.nome }}" style="height: 200px; object-fit: cover;">
+                    
+                    <div class="card-body">
+                        <h5 class="card-title">{{ peca.nome }}</h5>
+                        <p class="card-text">{{ peca.descricao[:100] }}...</p>
+                        <p class="card-text"><strong>Preço:</strong> R$ {{ "%.2f"|format(peca.preco) }}</p>
+                        <p class="card-text"><strong>Estoque:</strong> {{ peca.estoque }}</p>
+                        <a href="{{ url_for('routes.peca', peca_id=peca.id) }}" class="btn btn-primary">Ver Detalhes</a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <p>Nenhuma peça cadastrada no momento.</p>
+        {% endfor %}
+    </div>
+{% endblock %}
