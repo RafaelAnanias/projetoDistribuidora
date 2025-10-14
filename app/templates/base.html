@@ -18,20 +18,28 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('routes.index') }}">Home</a>
                     </li>
+                    
                     {% if current_user.is_authenticated %}
+                        
+                        {#-- Menu visível apenas para clientes --#}
+                        {% if current_user.role == 'cliente' %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('routes.carrinho') }}">Carrinho</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('routes.lista_desejos') }}">Lista de Desejos</a>
                         </li>
+                        {% endif %}
+                        
+                        {#-- Menu visível apenas para administradores --#}
                         {% if current_user.role == 'admin' %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('routes.admin_dashboard') }}">Admin Dashboard</a>
                         </li>
                         {% endif %}
+
                     {% endif %}
-                </ul>
+                    </ul>
                 <ul class="navbar-nav">
                     {% if current_user.is_authenticated %}
                         <li class="nav-item">
