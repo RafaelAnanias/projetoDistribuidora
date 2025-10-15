@@ -16,15 +16,12 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# <<< NOVO DECORATOR ADICIONADO ABAIXO >>>
 # Decorator para rotas de cliente
 def client_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # Se o usuário não for um cliente, nega o acesso
         if not current_user.is_authenticated or current_user.role != 'cliente':
             flash('Acesso negado. Esta funcionalidade é apenas para clientes.', 'warning')
-            # Redireciona o admin para o seu dashboard, que é a sua "página inicial"
             return redirect(url_for('routes.admin_dashboard'))
         return f(*args, **kwargs)
     return decorated_function
@@ -43,7 +40,6 @@ def registrar():
         return redirect(url_for('routes.index'))
     if request.method == 'POST':
         senha_hash = bcrypt.generate_password_hash(request.form.get('senha')).decode('utf-8')
-        # Garante que o primeiro usuário seja admin, ou defina como preferir.
         role = 'admin' if Usuario.query.count() == 0 else 'cliente'
         usuario = Usuario(nome=request.form.get('nome'), email=request.form.get('email'), senha_hash=senha_hash, role=role)
         db.session.add(usuario)
@@ -55,7 +51,6 @@ def registrar():
 @bp.route("/login", methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        # Se um admin já logado tentar ir para /login, manda ele para o dashboard
         if current_user.role == 'admin':
             return redirect(url_for('routes.admin_dashboard'))
         return redirect(url_for('routes.index'))
@@ -87,7 +82,7 @@ def peca(peca_id):
 
 @bp.route("/carrinho")
 @login_required
-@client_required # <-- PROTEGIDO
+@client_required
 def carrinho():
     itens_carrinho = ItemCarrinho.query.filter_by(usuario_id=current_user.id).all()
     total = sum(item.peca.preco * item.quantidade for item in itens_carrinho)
@@ -95,7 +90,7 @@ def carrinho():
 
 @bp.route("/adicionar_carrinho/<int:peca_id>", methods=['POST'])
 @login_required
-@client_required # <-- PROTEGIDO
+@client_required
 def adicionar_carrinho(peca_id):
     peca = Peca.query.get_or_404(peca_id)
     item_existente = ItemCarrinho.query.filter_by(usuario_id=current_user.id, peca_id=peca.id).first()
@@ -112,7 +107,7 @@ def adicionar_carrinho(peca_id):
 
 @bp.route("/remover_carrinho/<int:item_id>", methods=['POST'])
 @login_required
-@client_required # <-- PROTEGIDO
+@client_required
 def remover_carrinho(item_id):
     item = ItemCarrinho.query.get_or_404(item_id)
     if item.usuario_id != current_user.id:
@@ -124,14 +119,14 @@ def remover_carrinho(item_id):
 
 @bp.route("/lista_desejos")
 @login_required
-@client_required # <-- PROTEGIDO
+@client_required
 def lista_desejos():
     itens = ItemListaDesejos.query.filter_by(usuario_id=current_user.id).all()
     return render_template('cliente/lista_desejos.html', title='Lista de Desejos', itens=itens)
 
 @bp.route("/adicionar_desejo/<int:peca_id>", methods=['POST'])
 @login_required
-@client_required # <-- PROTEGIDO
+@client_required
 def adicionar_desejo(peca_id):
     peca = Peca.query.get_or_404(peca_id)
     item_existente = ItemListaDesejos.query.filter_by(usuario_id=current_user.id, peca_id=peca.id).first()
@@ -147,7 +142,7 @@ def adicionar_desejo(peca_id):
 
 @bp.route("/remover_desejo/<int:item_id>", methods=['POST'])
 @login_required
-@client_required # <-- PROTEGIDO
+@client_required
 def remover_desejo(item_id):
     item = ItemListaDesejos.query.get_or_404(item_id)
     if item.usuario_id == current_user.id:
@@ -156,36 +151,59 @@ def remover_desejo(item_id):
         flash('Item removido da lista de desejos.', 'success')
     return redirect(url_for('routes.lista_desejos'))
 
-@bp.route("/finalizar_compra", methods=['POST'])
+# <<< ROTA DE FINALIZAR COMPRA REMOVIDA E SUBSTITUÍDA PELA ROTA ABAIXO >>>
+
+@bp.route("/finalizar-compra/endereco", methods=['GET', 'POST'])
 @login_required
-@client_required # <-- PROTEGIDO
-def finalizar_compra():
+@client_required
+def endereco_entrega():
     itens_carrinho = ItemCarrinho.query.filter_by(usuario_id=current_user.id).all()
     if not itens_carrinho:
-        flash('Seu carrinho está vazio.', 'info')
-        return redirect(url_for('routes.carrinho'))
+        flash('Seu carrinho está vazio. Adicione itens antes de prosseguir.', 'info')
+        return redirect(url_for('routes.index'))
 
-    novo_pedido = Pedido(usuario_id=current_user.id)
-    db.session.add(novo_pedido)
+    if request.method == 'POST':
+        # Pega os dados do endereço do formulário
+        cep = request.form.get('cep')
+        rua = request.form.get('rua')
+        numero = request.form.get('numero')
+        bairro = request.form.get('bairro')
+        cidade = request.form.get('cidade') # Campo cidade adicionado
 
-    for item in itens_carrinho:
-        if item.peca.estoque < item.quantidade:
-            flash(f'Estoque insuficiente para {item.peca.nome}.', 'danger')
-            return redirect(url_for('routes.carrinho'))
-        
-        item_pedido = ItemPedido(
-            pedido=novo_pedido,
-            peca_id=item.peca_id,
-            quantidade=item.quantidade,
-            preco_unitario=item.peca.preco
+        # Cria o novo pedido com todos os dados de endereço
+        novo_pedido = Pedido(
+            usuario_id=current_user.id,
+            cep=cep,
+            rua=rua,
+            numero=numero,
+            bairro=bairro,
+            cidade=cidade # Campo cidade adicionado
         )
-        db.session.add(item_pedido)
-        item.peca.estoque -= item.quantidade
-        db.session.delete(item)
+        db.session.add(novo_pedido)
 
-    db.session.commit()
-    flash('Compra finalizada com sucesso! Seu pedido está sendo processado.', 'success')
-    return redirect(url_for('routes.index'))
+        # Move os itens do carrinho para o pedido
+        for item in itens_carrinho:
+            if item.peca.estoque < item.quantidade:
+                flash(f'Estoque insuficiente para {item.peca.nome}. Pedido não finalizado.', 'danger')
+                db.session.rollback()
+                return redirect(url_for('routes.carrinho'))
+            
+            item_pedido = ItemPedido(
+                pedido=novo_pedido,
+                peca_id=item.peca_id,
+                quantidade=item.quantidade,
+                preco_unitario=item.peca.preco
+            )
+            db.session.add(item_pedido)
+            item.peca.estoque -= item.quantidade
+            db.session.delete(item)
+
+        db.session.commit()
+        flash('Compra finalizada com sucesso! Seu pedido está sendo processado.', 'success')
+        return redirect(url_for('routes.index'))
+
+    # Se o método for GET, exibe a página do formulário
+    return render_template('cliente/endereco_entrega.html', title='Endereço de Entrega')
 
 # --- ROTAS DO ADMINISTRADOR ---
 

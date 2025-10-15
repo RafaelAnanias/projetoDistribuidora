@@ -3,10 +3,10 @@
 {% block content %}
     <h1>Seu Carrinho de Compras</h1>
     {% if itens_carrinho %}
-        <table class="table">
+        <table class="table align-middle">
             <thead>
                 <tr>
-                    <th>Peça</th>
+                    <th style="width: 60%;">Peça</th>
                     <th>Quantidade</th>
                     <th>Preço Unitário</th>
                     <th>Subtotal</th>
@@ -16,7 +16,12 @@
             <tbody>
                 {% for item in itens_carrinho %}
                     <tr>
-                        <td>{{ item.peca.nome }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <img src="{{ item.peca.imagem_url }}" alt="{{ item.peca.nome }}" style="width: 75px; height: 75px; object-fit: cover; margin-right: 15px;" class="rounded">
+                                <span>{{ item.peca.nome }}</span>
+                            </div>
+                        </td>
                         <td>{{ item.quantidade }}</td>
                         <td>R$ {{ "%.2f"|format(item.peca.preco) }}</td>
                         <td>R$ {{ "%.2f"|format(item.peca.preco * item.quantidade) }}</td>
@@ -29,13 +34,14 @@
                 {% endfor %}
             </tbody>
         </table>
-        <div class="text-end">
+        
+        <div class="text-end mt-4">
             <h3>Total: R$ {{ "%.2f"|format(total) }}</h3>
-            <form action="{{ url_for('routes.finalizar_compra') }}" method="POST">
-                <button type="submit" class="btn btn-lg btn-success">Finalizar Compra</button>
-            </form>
+            <a href="{{ url_for('routes.endereco_entrega') }}" class="btn btn-lg btn-success">Finalizar Compra</a>
         </div>
-    {% else %}
-        <p>Seu carrinho está vazio.</p>
+        {% else %}
+        <div class="alert alert-info">
+            Seu carrinho está vazio. <a href="{{ url_for('routes.index') }}" class="alert-link">Continue comprando</a>.
+        </div>
     {% endif %}
 {% endblock %}
