@@ -29,6 +29,9 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('routes.lista_desejos') }}">Lista de Desejos</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('routes.meus_pedidos') }}">Meus Pedidos</a>
+                        </li>
                         {% endif %}
                         
                         {#-- Menu visível apenas para administradores --#}
@@ -38,8 +41,14 @@
                         </li>
                         {% endif %}
 
-                    {% endif %}
-                    </ul>
+                        {#-- Menu visível apenas para vendedores --#}
+                        {% if current_user.role == 'vendedor' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('routes.vendedor_dashboard') }}">Painel Vendedor</a>
+                        </li>
+                        {% endif %}
+                        {% endif %}
+                </ul>
                 <ul class="navbar-nav">
                     {% if current_user.is_authenticated %}
                         <li class="nav-item">

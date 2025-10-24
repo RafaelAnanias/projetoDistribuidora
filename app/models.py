@@ -12,7 +12,7 @@ class Usuario(db.Model, UserMixin):
     nome = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     senha_hash = db.Column(db.String(128), nullable=False)
-    # 'cliente' ou 'admin'
+    # 'cliente', 'admin' ou 'vendedor'
     role = db.Column(db.String(20), nullable=False, default='cliente')
 
     # Relacionamentos
@@ -37,7 +37,12 @@ class Peca(db.Model):
 class Pedido(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     data_pedido = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    status = db.Column(db.String(30), nullable=False, default='Processando')
+    
+    # --- ALTERAÇÃO AQUI ---
+    # O valor padrão foi alterado de 'Processando' para 'Aguardando Pagamento'
+    status = db.Column(db.String(30), nullable=False, default='Aguardando Pagamento') 
+    # --- FIM DA ALTERAÇÃO ---
+
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
     
     # Campos de endereço
@@ -45,7 +50,7 @@ class Pedido(db.Model):
     rua = db.Column(db.String(200), nullable=False)
     numero = db.Column(db.String(20), nullable=False)
     bairro = db.Column(db.String(100), nullable=False)
-    cidade = db.Column(db.String(100), nullable=False) # <<< CAMPO ADICIONADO
+    cidade = db.Column(db.String(100), nullable=False)
     
     # Relacionamento com os itens do pedido
     itens = db.relationship('ItemPedido', backref='pedido', lazy=True, cascade="all, delete-orphan")
@@ -53,7 +58,7 @@ class Pedido(db.Model):
 class ItemPedido(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     quantidade = db.Column(db.Integer, nullable=False)
-    preco_unitario = db.Column(db.Float, nullable=False) # Preço no momento da compra
+    preco_unitario = db.Column(db.Float, nullable=False)  # Preço no momento da compra
     pedido_id = db.Column(db.Integer, db.ForeignKey('pedido.id'), nullable=False)
     peca_id = db.Column(db.Integer, db.ForeignKey('peca.id'), nullable=False)
     peca = db.relationship('Peca')

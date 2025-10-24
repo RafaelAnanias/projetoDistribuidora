@@ -1,16 +1,24 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Todos os Pedidos</h1>
+<h1>Meus Pedidos</h1>
+
 <div class="accordion" id="accordionPedidos">
     {% for pedido in pedidos %}
     <div class="accordion-item">
         <h2 class="accordion-header" id="heading{{ pedido.id }}">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                 data-bs-target="#collapse{{ pedido.id }}">
-                Pedido #{{ pedido.id }} - Cliente: {{ pedido.comprador.nome }} - Data: {{
-                pedido.data_pedido.strftime('%d/%m/%Y') }} - Status: <span class="badge bg-info ms-2">{{ pedido.status
-                    }}</span>
+                #{{ pedido.id }} - Data: {{ pedido.data_pedido.strftime('%d/%m/%Y') }} -
+                Status:
+                <span class="badge 
+                        {% if pedido.status == 'Aguardando Pagamento' %}bg-warning text-dark
+                        {% elif pedido.status == 'Pago' %}bg-success
+                        {% elif pedido.status == 'Cancelado' %}bg-danger
+                        {% else %}bg-info
+                        {% endif %} ms-2">
+                    {{ pedido.status }}
+                </span>
             </button>
         </h2>
         <div id="collapse{{ pedido.id }}" class="accordion-collapse collapse" data-bs-parent="#accordionPedidos">
@@ -21,20 +29,17 @@
                     <li>{{ item.quantidade }}x {{ item.peca.nome }} (R$ {{ "%.2f"|format(item.preco_unitario) }} cada)
                     </li>
                     {% endfor %}
-                </ul>
 
-                <h6 class="mt-3">Endereço de Entrega:</h6>
-                <p class="mb-0">
-                    {{ pedido.rua }}, {{ pedido.numero }}<br>
-                    {{ pedido.bairro }} - {{ pedido.cidade }}<br>
-                    CEP: {{ pedido.cep }}
-                </p>
-                <hr>
+                    <h6 class="mt-3">Endereço de Entrega:</h6>
+                    <p class="mb-0">
+                        {{ pedido.rua }}, {{ pedido.numero }}<br>
+                        {{ pedido.bairro }} - {{ pedido.cidade }} (CEP: {{ pedido.cep }})
+                    </p>
             </div>
         </div>
     </div>
     {% else %}
-    <p>Nenhum pedido encontrado.</p>
+    <p>Você ainda não fez nenhum pedido.</p>
     {% endfor %}
 </div>
 {% endblock %}
