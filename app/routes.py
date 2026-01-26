@@ -299,21 +299,7 @@ def admin_pedidos():
     pedidos = Pedido.query.order_by(Pedido.data_pedido.desc()).all()
     return render_template('admin/pedidos.html', title='Gerenciar Pedidos', pedidos=pedidos)
 
-# --- ALTERAÇÃO: ROTA REMOVIDA (COMENTADA) ---
-# @bp.route("/admin/pedido/<int:pedido_id>/status", methods=['POST'])
-# @login_required
-# @admin_required
-# def atualizar_status_pedido(pedido_id):
-#     pedido = Pedido.query.get_or_404(pedido_id)
-#     novo_status = request.form.get('status')
-#     if novo_status in ['Processando', 'Enviado', 'Entregue', 'Cancelado']:
-#         pedido.status = novo_status
-#         db.session.commit()
-#         flash(f'Status do pedido {pedido.id} atualizado para {novo_status}.', 'success')
-#     else:
-#         flash('Status inválido.', 'danger')
-#     return redirect(url_for('routes.admin_pedidos'))
-# --- FIM DA ROTA REMOVIDA ---
+
 
 
 @bp.route("/admin/adicionar_peca", methods=['GET', 'POST'])
