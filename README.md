@@ -1,7 +1,7 @@
 # Projeto: Distribuidora de Peças Automotivas (Flask)
 
 ## ✨ Funcionalidades
-O sistema possui dois níveis de acesso: Cliente e Administrador.
+O sistema possui dois níveis de acesso: Cliente, Administrador e Vendedor.
 
 ### Cliente
 -   ✅ Cadastro e Login de usuários.
@@ -10,6 +10,12 @@ O sistema possui dois níveis de acesso: Cliente e Administrador.
 -   ✅ Adição e remoção de itens à Lista de Desejos.
 -   ✅ Processo de finalização de compra com preenchimento de endereço de entrega.
 
+### Vendedor
+-   ✅ Painel Exclusivo: Visualização de pedidos pendentes de pagamento.
+-   ✅ Privacidade: Visualiza o cliente e os itens, mas não possui acesso aos valores financeiros do pedido.
+-   ✅ Fluxo de Caixa: Confirma o pagamento do pedido.
+-   ✅ Automação: Ao confirmar o pagamento, o sistema automaticamente subtrai os itens do estoque e altera o status para Pago.
+
 ### Administrador
 -   ✅ Acesso a um painel de controle (Dashboard) exclusivo.
 -   ✅ Cadastro de novas peças ao catálogo, incluindo nome, descrição, preço, estoque e URL da imagem.
@@ -17,8 +23,16 @@ O sistema possui dois níveis de acesso: Cliente e Administrador.
 -   ✅ Acesso aos detalhes de cada pedido, incluindo itens e endereço de entrega.
 -   ✅ Alteração do status de um pedido (Ex: Processando, Enviado, Entregue, Cancelado).
 
-## Tecnologias Utilizadas
+### Regras de Negócio (Lógica de Usuários)
+-   1. O Primeiro é o Dono: O código está programado para verificar se o banco está vazio. O primeiríssimo usuário a se registrar recebe a role admin.
+-   2. Novos Registros: Todos os usuários que se registrarem após o primeiro serão criados automaticamente como cliente.
+-   3. Criação do Vendedor: Por questões de segurança, a role vendedor não pode ser obtida via formulário. Para criar um vendedor:
 
+- Registre um novo usuário normalmente.
+- Acesse o banco de dados (phpMyAdmin).
+- Na tabela Usuario, altere o campo role de cliente para vendedor.
+
+## Tecnologias Utilizadas
 -   **Back-end:** Python 3
 -   **Framework:** Flask
 -   **Banco de Dados:** MySQL
@@ -55,7 +69,7 @@ pip install -r requirements.txt
 -   **Execute o seguinte comando SQL:**
 
     ```sql
-    CREATE DATABASE distribuidra_db
+    CREATE DATABASE distribuidora_db
     ```
 
 **5. Configure as Variáveis de Ambiente**
